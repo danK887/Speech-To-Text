@@ -16,7 +16,8 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = 'f3cf2de9e3dd8fae'
 
-lang_menu = {'rus': 'vosk-model-ru-0.22', 'eng': 'vosk-model-small-en-us-0.15'}
+#Словарь и переменная нужны для взаимодействия с выбранным языком в форме. Данные сравниваются с ключем словаря и значение записывается в переменную
+lang_menu = {'rus': 'vosk-model-small-ru-0.22', 'eng': 'vosk-model-small-en-us-0.15'}
 selected_lang = ''
 
 def allowed_file(filename):
@@ -28,12 +29,13 @@ def allowed_file(filename):
 # Проверяем, что файл передается. После перенаправляет на страницу с результатом
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
+    '''Функция обработки данных о выбранном языке. Данные берутся из формы form.py'''
     global selected_lang
     form = ChooseLang()
     if form.validate_on_submit():
         lang_var = '{}'.format(form.lang.data)
         selected_lang = lang_menu.get(lang_var)
-        return selected_lang
+        #return selected_lang #если необходимо вывести значение переменной, которую стравниваю со словарем
 
     if request.method == 'POST':
         file = request.files['file']
@@ -67,8 +69,8 @@ def uploaded_file(filename):
         sys.exit(1)
 
     # You can also init model by name or with a folder path
-    model = Model(lang=selected_lang)
-    # model = Model("models/en")
+    model = Model(model_name=selected_lang)
+    # selected_lang - переменная, которая говорит, какую модель нужно использовать в соответсвии с языком
 
     rec = KaldiRecognizer(model, wf.getframerate())
     rec.SetWords(True)
